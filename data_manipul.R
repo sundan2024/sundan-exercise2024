@@ -6,9 +6,9 @@
 #
 #Date:2024-03-22
 #
-#Script Name:
+#Script Name:data_manipul.R
 #
-#Script Description:
+#Script Description:homework_03,主要关于如何获取数据，检查数据，数据可视化等
 #
 #
 #SETUP ----------------------------------------------
