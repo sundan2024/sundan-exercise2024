@@ -44,7 +44,7 @@ select_wide
 filter_wide <- filter(data_wide, year == 1995)
 filter_wide
 
-# 进行多重筛选,年份小于1995同时只保留species_id数据保存在select2
+# 进行多重筛选,年份小于1995同时只保留plot_id、DM数据保存在select2
 select2 <- data_wide %>% 
 filter(year < 1995) %>%
   select(plot_id, DM)
