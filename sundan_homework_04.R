@@ -8,7 +8,7 @@
 #
 #Script Name:sundan_homework_04
 #
-#Script Description:homework_04,主要关于如何使用caret包进行模型构建等
+#Script Description:homework_04,主要关于如何使用caret进行模型构建等
 #
 #
 #SETUP ----------------------------------------------
