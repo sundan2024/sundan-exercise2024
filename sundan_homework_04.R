@@ -32,11 +32,17 @@ pairs(mtcars)
 #检查数据集是否有缺失值，返回值0
 sum(is.na(mtcars))
 
+#进行数据缩放
+df <-mtcars
+df <- as.data.frame(scale(df))
+df$mpg <- NULL
+df$mpg <- mtcars$mpg
+head(df)
+
 #创建训练集和测试集，确定mpg为目标变量
-set.seed(123)
-trainIndex <- createDataPartition(mtcars$mpg, p = 0.8, list = FALSE)
-trainData <- mtcars[trainIndex, ]
-testData <- mtcars[-trainIndex, ]
+trainingRowIndex <- sample(1:nrow(df), 0.8*nrow(df)) 
+trainData <- df[trainingRowIndex, ]  
+testData  <- df[-trainingRowIndex, ]   
 
 #查看训练集
 head(trainData)
@@ -48,22 +54,13 @@ skimmed <- skim(trainData)
 skimmed[, c(1:5, 9:11)]
 
 #训练随机森林模型
-rf_model <- randomForest(mpg ~ ., data = trainData)
+rf_model <- randomForest(mpg ~ ., data = trainData,  proximity=TRUE, ntree=1000)
 
-#可视化变量重要性featurePlot
-features <- names(mtcars)[-1]
-featurePlot(x = trainData[, features], 
-            y = as.factor(trainData$mpg), 
-            plot = "box",
-            strip=strip.custom(par.strip.text=list(cex=.7)),
-            scales = list(x = list(relation="free"), 
-                          y = list(relation="free")))
-
-#可视化变量重要性varImpPlot
-rf_model <- randomForest(mpg ~ ., data = trainData)
+#评估变量重要性
+(varimp.rf_model <- varImp(rf_model))
 varImpPlot(rf_model)
 
-#根据两种确定变量重要性方法，确定disp210最为重要
+#确定重要变量
 important_features <- importance(rf_model, type = 2)
 str(important_features)
 selected_features <- rownames(important_features)[order(important_features[, "IncNodePurity"], decreasing = TRUE)]
@@ -106,8 +103,9 @@ ggplot(data.frame(predictions = predictions, actual = testData$mpg), aes(x = act
   labs(x = "Actual mpg", y = "Predicted mpg") +
   theme_minimal()
 
-#根据选定的特征，确定了预测mpg与实际mpg之间的线性关系并进一步获取了拟合效果，即R方值为0.9047082
+#根据选定的特征，确定了预测mpg与实际mpg之间的线性关系并进一步获取了拟合效果
 total_variance <- sum((testData$mpg - mean(testData$mpg))^2)
 residual_variance <- sum((testData$mpg - predictions)^2)
 rsquared <- 1 - (residual_variance / total_variance)
 print(rsquared)
+
