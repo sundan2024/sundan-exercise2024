@@ -1,7 +1,7 @@
 #HEADER------------------------------------
 #
 #Author: sundan
-#Copyright   Copyright 2024-sundan
+#Copyright  Copyright 2024-sundan
 #Email: sundan@mail.ustc.edu.cn
 #
 #Date:2024-04-10 
