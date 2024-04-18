@@ -9,7 +9,7 @@
 #Script Name: data exploration.R
 #
 #Script Description:①删除 Doubs 数据集中缺失数据的站点并检测环境因素是否存在共线性。
-#②在网站上学习PCAF分析及聚类分析，应用于doubs数据进行学习探索
+#②在网站上学习PCA分析及聚类分析，应用于doubs数据进行学习探索
 #③分析鱼类与环境因素之间的关系，并可视化。
 #
 #
@@ -20,7 +20,7 @@
 help(package=ade4)
 library(ade4)
 library(caret)
-help(package=ade4)
+
 
 #加载Doubs数据集并查看基础信息，主要是数据结构，前几行数据与数据类型
 data(doubs)
@@ -53,13 +53,14 @@ heatmap(correlation_matrix,
         col = colorRampPalette(c("blue", "white", "red"))(20), 
         main = "Correlation Heatmap of Environmental Factors")
 
-#检查高度相关的变量
+#检查高度相关的变量，判断查环境因素之间是否存在强相关性
 highly_correlated <- findCorrelation(correlation_matrix, cutoff = 0.8)
 
 #打印高度相关的变量,获得"nit" "dfs" "alt" "pho" "amm" "oxy"
 print("Highly correlated environmental factors:")
 print(names(Doubs_clean$env)[highly_correlated])
 
+#这些变量的存在可能会引起多重共线性，导致模型不稳定
 
 ##03-使用PCA及聚类分析对doubs进行数据探索
 #PCA分析及可视化
@@ -69,21 +70,38 @@ library(vegan)
 #提取数据中的环境变量env
 env_data <- Doubs_clean$env
 
-#进行env的PCA分析
+#进行env的PCA分析及查看PCA 排序结果
 env_pca <- rda(env_data)
-summary(env_pca)
+head(summary(env_pca))
+str(env_data)
 
-#绘制PCA的双变量图，并在图上添加相关因素，主要是标题、图例等
-dev.new()
-biplot(env_pca, display = "sites", type = "points", col = "blue")
-text(env_pca, display = "species", col = "red", cex = 0.8, adj = c(0, -0.5), srt = 45) 
-title(main = "PCA of Environmental Factors", xlab = "PCA1", ylab = "PCA2")
-legend("bottomright", legend = rownames(env_data), col = "red", pch = 1, cex = 0.8, bty = "n", pt.cex = 0.5)
+#计算环境数据的标准化值、方差与总方差
+env_pca_scores <- scores(env_pca, display = "species")
+stand.env_data <- scale (env_data)
+stand.env_data.var <- apply (stand.env_data, 2, var)
+sum (stand.env_data.var)
 
-# 保存图形为图片名称为pca_plot.png，已成功保存到本地
-dev.copy(png, "pca_plot.png")
-dev.off()
-#关闭绘图窗口
+#获取PCA分析的载荷loadings
+loadings <- scores (env_pca, display = 'species', scaling = 0)
+loadings
+
+#按照第一个主成分的绝对值排序
+sort (abs (loadings[,1]), decreasing = TRUE)
+
+#按照第二个主成分的绝对值排序
+sort (abs (loadings[,2]), decreasing = TRUE)
+
+#绘制PCA的双标图
+biplot (env_pca, display = 'species', scaling = 'species')
+
+#参考教程资源评估 PCA 中排序轴
+#网址：https://www.davidzeleny.net/anadat-r/doku.php/en:pca_examples
+source ('https://raw.githubusercontent.com/zdealveindy/anadat-r/master/scripts/NumEcolR1/evplot.R')
+PCA <- rda (stand.env_data)
+ev <- PCA$CA$eig
+
+#计算重要性
+evplot (ev)
 
 #聚类分析
 # 载入聚类分析所需的包cluster与ggplot2
@@ -174,6 +192,8 @@ ggplot(data = Doubs_clean$env,
 colnames(Doubs_clean$fish)
 
 #可以仿照最后的绘图代码结合实际，分析自己或者科学研究时更感兴趣的因素，以便得到一定的相关性结果
+
+
 
 
 
