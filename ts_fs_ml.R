@@ -57,6 +57,14 @@ VERCah_VAI$DATE <- as.Date(VERCah_VAI$DATE)
 #按日期排序
 VERCah_VAI <- arrange(VERCah_VAI, DATE)
 
+#描述性统计分析
+summary(VERCah_VAI)
+
+#绘制时间序列的箱线图
+ggplot(VERCah_VAI, aes(x = DATE, y = DENSITY)) +
+  geom_boxplot() +
+  theme_minimal()
+
 #检查重复行
 dup_rows <- duplicates(VERCah_VAI)
 
